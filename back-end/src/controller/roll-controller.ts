@@ -57,7 +57,6 @@ export class RollController {
         student_id: param.student_id,
         state: param.state,
       }
-
       const studentRollState = new StudentRollState()
       studentRollState.prepareToCreate(createStudentRollStateInput)
       return studentRollState
