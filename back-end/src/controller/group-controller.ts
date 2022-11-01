@@ -67,6 +67,13 @@ export class GroupController {
   async getGroupStudents(request: Request, response: Response, next: NextFunction) {
     // Task 1:
     // Return the list of Students that are in a Group
+    return await this.groupStudentRepository
+      .createQueryBuilder("groupStudent") // first argument is an alias. Alias is what you are selecting - groupStudent. You must specify it.
+      .innerJoin(Student, "student", "groupStudent.student_id = student.id")
+      .addSelect("student.first_name", "first_name")
+      .addSelect("student.last_name", "last_name")
+      .addSelect("student.first_name || ' ' || student.last_name", "full_name")
+      .getRawMany()
   }
 
   // get a date of sunday of the given previous week
@@ -77,9 +84,10 @@ export class GroupController {
     let prevSunday = new Date()
     let interval = noOfweek * 7
     prevSunday.setDate(date.getDate() - (day + interval))
-    console.log(prevSunday.toISOString().slice(0, 10))
     return prevSunday.toISOString().slice(0, 10)
   }
+
+  // add students to a group
   async addGroupStudents(filterResult: any[], groupId: number) {
     const groupStudents: GroupStudent[] = map(filterResult, (result) => {
       const createGroupStudentInput: CreateGroupStudentInput = {
@@ -94,6 +102,8 @@ export class GroupController {
 
     return await this.groupStudentRepository.save(groupStudents)
   }
+
+  // run each group filter
   async runGroupFilters(request: Request, response: Response, next: NextFunction) {
     // Task 2:
     // 1. Clear out the groups (delete all the students from the groups)
@@ -110,7 +120,7 @@ export class GroupController {
     runAt.toISOString().split("T")[0]
     groups.forEach(async (group) => {
       filterResult = await this.studentRollStateRepository
-        .createQueryBuilder("student") // first argument is an alias. Alias is what you are selecting - photos. You must specify it.
+        .createQueryBuilder("student") // first argument is an alias. Alias is what you are selecting - student. You must specify it.
         .innerJoin(StudentRollState, "studentRollState", "studentRollState.student_id = student.id")
         .innerJoin(Roll, "roll", "studentRollState.roll_id = roll.id")
         .select("COUNT(studentRollState.student_id)", "incident_count")
