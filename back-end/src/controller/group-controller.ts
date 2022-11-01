@@ -73,6 +73,7 @@ export class GroupController {
       .addSelect("student.first_name", "first_name")
       .addSelect("student.last_name", "last_name")
       .addSelect("student.first_name || ' ' || student.last_name", "full_name")
+      .where("groupStudent.group_id = :group_id", { group_id: request.query.group_id })
       .getRawMany()
   }
 
