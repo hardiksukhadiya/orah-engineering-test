@@ -73,6 +73,7 @@ export class GroupController {
       .addSelect("student.first_name", "first_name")
       .addSelect("student.last_name", "last_name")
       .addSelect("student.first_name || ' ' || student.last_name", "full_name")
+      .where("groupStudent.group_id = :group_id", { group_id: request.query.group_id })
       .getRawMany()
   }
 
@@ -117,7 +118,6 @@ export class GroupController {
     let groups = await this.groupRepository.find()
     let filterResult: any[]
     let runAt = new Date()
-    runAt.toISOString().split("T")[0]
     groups.forEach(async (group) => {
       filterResult = await this.studentRollStateRepository
         .createQueryBuilder("student") // first argument is an alias. Alias is what you are selecting - student. You must specify it.
